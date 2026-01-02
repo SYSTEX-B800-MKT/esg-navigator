@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精誠 ESG 智選航員 | ESG Smart Navigator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            color: #e5e5e5;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        .glass-card-strong {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        .nav-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-item.active {
+            background: rgba(45, 90, 39, 0.3);
+            border-left: 3px solid #2D5A27;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #2D5A27;
+            box-shadow: 0 0 10px rgba(45, 90, 39, 0.5);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .slide-in-right {
+            animation: slideInRight 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2D5A27 0%, #3d7a35 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(45, 90, 39, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4);
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .diagnostic-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .diagnostic-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .chart-container {
+            background: rgba(45, 90, 39, 0.1);
+            border: 1px solid rgba(45, 90, 39, 0.3);
+        }
+        
+        .email-preview {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+            color: #1a1a1a;
+        }
+        
+        .esg-green {
+            color: #2D5A27;
+        }
+        
+        .esg-green-bg {
+            background-color: #2D5A27;
+        }
+        
+        .esg-green-border {
+            border-color: #2D5A27;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+    <!-- 左側導覽列 -->
+    <aside class="w-64 glass-card p-6 flex flex-col space-y-4 border-r border-white border-opacity-10">
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-white mb-2">精誠 ESG 智選航員</h1>
+            <p class="text-xs text-gray-400 mt-1">ESG Smart Navigator</p>
+        </div>
+        
+        <nav class="flex-1 space-y-2">
+            <button 
+                class="nav-item active w-full text-left px-4 py-3 rounded-lg text-white font-medium flex items-center space-x-3"
+                onclick="switchView('intelligence')"
+                id="nav-intelligence"
+            >
+                <i data-lucide="search" class="w-5 h-5"></i>
+                <span>客戶情蒐分析</span>
+            </button>
+            
+            <button 
+                class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 font-medium flex items-center space-x-3 hover:text-white"
+                onclick="switchView('diagnostic')"
+                id="nav-diagnostic"
+            >
+                <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                <span>需求診斷</span>
+            </button>
+            
+            <button 
+                class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 font-medium flex items-center space-x-3 hover:text-white"
+                onclick="switchView('products')"
+                id="nav-products"
+            >
+                <i data-lucide="package" class="w-5 h-5"></i>
+                <span>ESG@IT產品</span>
+            </button>
+            
+            <button 
+                class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 font-medium flex items-center space-x-3 hover:text-white"
+                onclick="switchView('proposal')"
+                id="nav-proposal"
+            >
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                <span>智能提案生成</span>
+            </button>
+        </nav>
+        
+        <div class="mt-auto pt-4 border-t border-white border-opacity-10">
+            <p class="text-xs text-gray-500 text-center">Powered by SYSTEX Corporation</p>
+        </div>
+    </aside>
+    
+    <!-- 主畫面 -->
+    <main class="flex-1 p-8 overflow-y-auto">
+        <!-- 需求診斷視圖 -->
+        <div id="view-diagnostic" class="view-content fade-in">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-2">ESG 需求診斷</h2>
+                <p class="text-gray-400 mb-8">選擇您面臨的挑戰，我們將為您推薦最適合的解決方案</p>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <button 
+                        onclick="diagnoseAndNavigate('electricity')"
+                        class="diagnostic-btn glass-card-strong rounded-2xl p-8 text-left"
+                    >
+                        <div class="w-16 h-16 rounded-full bg-red-500 bg-opacity-20 flex items-center justify-center mb-4">
+                            <i data-lucide="zap" class="w-8 h-8 text-red-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">面臨電價調漲</h3>
+                        <p class="text-gray-400 text-sm">工業電價漲幅 66%，急需節能解決方案</p>
+                    </button>
+                    
+                    <button 
+                        onclick="diagnoseAndNavigate('cbam')"
+                        class="diagnostic-btn glass-card-strong rounded-2xl p-8 text-left"
+                    >
+                        <div class="w-16 h-16 rounded-full bg-orange-500 bg-opacity-20 flex items-center justify-center mb-4">
+                            <i data-lucide="globe" class="w-8 h-8 text-orange-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">出口歐盟 CBAM</h3>
+                        <p class="text-gray-400 text-sm">需要符合 CBAM 規範的碳排報告</p>
+                    </button>
+                    
+                    <button 
+                        onclick="diagnoseAndNavigate('compliance')"
+                        class="diagnostic-btn glass-card-strong rounded-2xl p-8 text-left"
+                    >
+                        <div class="w-16 h-16 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mb-4">
+                            <i data-lucide="file-check" class="w-8 h-8 text-blue-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">法規盤查壓力</h3>
+                        <p class="text-gray-400 text-sm">ISO 14064/14067 盤查需求</p>
+                    </button>
+                    
+                    <button 
+                        onclick="showVoluntaryOptions()"
+                        class="diagnostic-btn glass-card-strong rounded-2xl p-8 text-left"
+                    >
+                        <div class="w-16 h-16 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center mb-4">
+                            <i data-lucide="heart" class="w-8 h-8 text-green-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">公司自發性</h3>
+                        <p class="text-gray-400 text-sm">主動推動 ESG 永續轉型</p>
+                    </button>
+                </div>
+                
+                <!-- 公司自發性選項 -->
+                <div id="voluntary-options" class="hidden slide-up mb-8">
+                    <div class="glass-card-strong rounded-2xl p-8">
+                        <h3 class="text-2xl font-bold text-white mb-6">請選擇您想要進行的項目</h3>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <button 
+                                onclick="diagnoseAndNavigate('voluntary-org-carbon')"
+                                class="diagnostic-btn glass-card rounded-xl p-6 text-left hover:bg-opacity-20"
+                            >
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <i data-lucide="building" class="w-6 h-6 text-blue-400"></i>
+                                    <h4 class="text-lg font-bold text-white">組織碳盤查</h4>
+                                </div>
+                                <p class="text-gray-400 text-sm">企業整體碳排盤查與管理</p>
+                            </button>
+                            
+                            <button 
+                                onclick="diagnoseAndNavigate('voluntary-product-carbon')"
+                                class="diagnostic-btn glass-card rounded-xl p-6 text-left hover:bg-opacity-20"
+                            >
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <i data-lucide="package" class="w-6 h-6 text-purple-400"></i>
+                                    <h4 class="text-lg font-bold text-white">產品碳足跡</h4>
+                                </div>
+                                <p class="text-gray-400 text-sm">產品生命週期碳排分析</p>
+                            </button>
+                            
+                            <button 
+                                onclick="diagnoseAndNavigate('voluntary-supply-chain')"
+                                class="diagnostic-btn glass-card rounded-xl p-6 text-left hover:bg-opacity-20"
+                            >
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <i data-lucide="network" class="w-6 h-6 text-teal-400"></i>
+                                    <h4 class="text-lg font-bold text-white">供應鏈管理</h4>
+                                </div>
+                                <p class="text-gray-400 text-sm">供應鏈碳排數據管理</p>
+                            </button>
+                            
+                            <button 
+                                onclick="diagnoseAndNavigate('voluntary-data-platform')"
+                                class="diagnostic-btn glass-card rounded-xl p-6 text-left hover:bg-opacity-20"
+                            >
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <i data-lucide="database" class="w-6 h-6 text-indigo-400"></i>
+                                    <h4 class="text-lg font-bold text-white">ESG相關數據平台</h4>
+                                </div>
+                                <p class="text-gray-400 text-sm">ESG 數據整合與治理</p>
+                            </button>
+                            
+                            <button 
+                                onclick="diagnoseAndNavigate('voluntary-energy')"
+                                class="diagnostic-btn glass-card rounded-xl p-6 text-left hover:bg-opacity-20"
+                            >
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <i data-lucide="battery-charging" class="w-6 h-6 text-green-400"></i>
+                                    <h4 class="text-lg font-bold text-white">能源管理</h4>
+                                </div>
+                                <p class="text-gray-400 text-sm">能源使用效率優化</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 診斷結果 -->
+                <div id="diagnostic-result" class="hidden slide-up">
+                    <div class="glass-card-strong rounded-2xl p-8">
+                        <div id="diagnostic-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ESG@IT產品視圖 -->
+        <div id="view-products" class="view-content hidden">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-2">ESG@IT 產品組合</h2>
+                <p class="text-gray-400 mb-8">完整的 ESG 數位化解決方案</p>
+                
+                <div class="space-y-6">
+                    <!-- EnVision360 -->
+                    <div id="product-envision360" class="product-card glass-card-strong rounded-2xl p-8">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="w-12 h-12 rounded-xl bg-green-500 bg-opacity-20 flex items-center justify-center">
+                                        <i data-lucide="battery-charging" class="w-6 h-6 text-green-400"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-white">EnVision360</h3>
+                                        <p class="text-gray-400">能源管理平台 - 含能效監控、儲能削峰填谷，一站式服務，提升能源使用效率</p>
+                                    </div>
+                                </div>
+                                <div class="grid md:grid-cols-3 gap-4 mb-4">
+                                    <div class="glass-card rounded-xl p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="bar-chart-3" class="w-5 h-5 text-green-400"></i>
+                                            <h4 class="text-white font-semibold">視覺圖表分析</h4>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">助企業快速決策，找出用電怪獸</p>
+                                    </div>
+                                    <div class="glass-card rounded-xl p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="activity" class="w-5 h-5 text-green-400"></i>
+                                            <h4 class="text-white font-semibold">數據驅動監控</h4>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">實現節能目標，提升整體效能</p>
+                                    </div>
+                                    <div class="glass-card rounded-xl p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="zap" class="w-5 h-5 text-green-400"></i>
+                                            <h4 class="text-white font-semibold">即時追蹤效益</h4>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">系統整合應用高度彈性</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>AI 冰機節能優化</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>儲能削峰填谷系統</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>解決工業電價漲幅 66% 痛點</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="https://youtu.be/AtMEERdiMCE?si=pKXanIJjTbR0XX6J" target="_blank" class="btn-primary px-6 py-3 rounded-lg text-white font-medium flex items-center space-x-2 ml-4">
+                                <i data-lucide="play" class="w-4 h-4"></i>
+                                <span>觀看 Video</span>
+                            </a>
+                        </div>
+                        <div class="chart-container rounded-xl p-6 mb-4">
+                            <h4 class="text-white font-semibold mb-4">儲能削峰填谷電力曲線</h4>
+                            <div class="relative h-64">
+                                <svg class="w-full h-full" viewBox="0 0 800 200" preserveAspectRatio="none">
+                                    <!-- 背景網格 -->
+                                    <defs>
+                                        <linearGradient id="gridGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                                            <stop offset="100%" style="stop-color:rgba(255,255,255,0.05);stop-opacity:1" />
+                                        </linearGradient>
+                                    </defs>
+                                    
+                                    <!-- 網格線 -->
+                                    <line x1="0" y1="50" x2="800" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                                    <line x1="0" y1="100" x2="800" y2="100" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                                    <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                                    
+                                    <!-- 尖峰時段標記 -->
+                                    <rect x="200" y="0" width="200" height="200" fill="rgba(255,136,0,0.1)"/>
+                                    <text x="300" y="15" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">尖峰時段</text>
+                                    
+                                    <!-- 離峰時段標記 -->
+                                    <rect x="0" y="0" width="200" height="200" fill="rgba(45,90,39,0.1)"/>
+                                    <text x="100" y="15" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">離峰時段</text>
+                                    <rect x="400" y="0" width="200" height="200" fill="rgba(45,90,39,0.1)"/>
+                                    <text x="500" y="15" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">離峰時段</text>
+                                    <rect x="600" y="0" width="200" height="200" fill="rgba(45,90,39,0.1)"/>
+                                    <text x="700" y="15" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">離峰時段</text>
+                                    
+                                    <!-- 用電負載曲線（原始用電） -->
+                                    <path d="M 0,120 Q 100,100 200,80 T 400,60 T 600,80 T 800,100" 
+                                          fill="none" 
+                                          stroke="rgba(255,136,0,0.6)" 
+                                          stroke-width="3" 
+                                          stroke-dasharray="5,5"/>
+                                    
+                                    <!-- 儲能放電曲線（尖峰時段） -->
+                                    <path d="M 200,80 L 200,60 L 400,60 L 400,80" 
+                                          fill="none" 
+                                          stroke="#FF8800" 
+                                          stroke-width="4"/>
+                                    
+                                    <!-- 儲能充電曲線（離峰時段） -->
+                                    <path d="M 0,120 L 0,140 L 200,140 L 200,120" 
+                                          fill="none" 
+                                          stroke="#2D5A27" 
+                                          stroke-width="4"/>
+                                    <path d="M 400,80 L 400,100 L 600,100 L 600,80" 
+                                          fill="none" 
+                                          stroke="#2D5A27" 
+                                          stroke-width="4"/>
+                                    <path d="M 600,100 L 600,120 L 800,120 L 800,100" 
+                                          fill="none" 
+                                          stroke="#2D5A27" 
+                                          stroke-width="4"/>
+                                    
+                                    <!-- 平滑後的用電曲線（削峰填谷後） -->
+                                    <path d="M 0,120 Q 100,120 200,100 Q 300,80 400,80 Q 500,80 600,100 Q 700,120 800,120" 
+                                          fill="none" 
+                                          stroke="#4ade80" 
+                                          stroke-width="3"/>
+                                    
+                                    <!-- 圖例 -->
+                                    <g transform="translate(20, 170)">
+                                        <line x1="0" y1="0" x2="30" y2="0" stroke="rgba(255,136,0,0.6)" stroke-width="2" stroke-dasharray="3,3"/>
+                                        <text x="40" y="4" fill="rgba(255,255,255,0.7)" font-size="11">原始用電負載</text>
+                                        
+                                        <line x1="180" y1="0" x2="210" y2="0" stroke="#FF8800" stroke-width="3"/>
+                                        <text x="220" y="4" fill="rgba(255,255,255,0.7)" font-size="11">儲能放電（尖峰）</text>
+                                        
+                                        <line x1="340" y1="0" x2="370" y2="0" stroke="#2D5A27" stroke-width="3"/>
+                                        <text x="380" y="4" fill="rgba(255,255,255,0.7)" font-size="11">儲能充電（離峰）</text>
+                                        
+                                        <line x1="500" y1="0" x2="530" y2="0" stroke="#4ade80" stroke-width="3"/>
+                                        <text x="540" y="4" fill="rgba(255,255,255,0.7)" font-size="11">削峰填谷後用電</text>
+                                    </g>
+                                    
+                                    <!-- Y軸標籤 -->
+                                    <text x="10" y="30" fill="rgba(255,255,255,0.6)" font-size="11">高</text>
+                                    <text x="10" y="100" fill="rgba(255,255,255,0.6)" font-size="11">中</text>
+                                    <text x="10" y="170" fill="rgba(255,255,255,0.6)" font-size="11">低</text>
+                                    
+                                    <!-- X軸時間標籤 -->
+                                    <text x="100" y="195" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle">00:00</text>
+                                    <text x="300" y="195" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle">08:00</text>
+                                    <text x="500" y="195" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle">16:00</text>
+                                    <text x="700" y="195" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle">24:00</text>
+                                </svg>
+                            </div>
+                            <p class="text-center text-sm text-gray-400 mt-4">儲能設備在尖峰時段放電、離峰時段充電，有效降低尖峰用電成本</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Carbon EnVision -->
+                    <div id="product-carbon-envision" class="product-card glass-card-strong rounded-2xl p-8">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="w-12 h-12 rounded-xl bg-blue-500 bg-opacity-20 flex items-center justify-center">
+                                        <i data-lucide="cloud" class="w-6 h-6 text-blue-400"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-white">Carbon EnVision</h3>
+                                        <p class="text-gray-400">雲端碳管理系統 - 推進盤查數位化</p>
+                                    </div>
+                                </div>
+                                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                    <div class="glass-card rounded-xl p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="file-check" class="w-5 h-5 text-blue-400"></i>
+                                            <h4 class="text-white font-semibold">標準規範符合</h4>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">依循 ISO 14064-1 和環境部規範，助企業快速填報</p>
+                                    </div>
+                                    <div class="glass-card rounded-xl p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="file-text" class="w-5 h-5 text-blue-400"></i>
+                                            <h4 class="text-white font-semibold">自動產出報告</h4>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">自動計算並產出溫盤報告書及清冊框架底稿，降低人力成本</p>
+                                    </div>
+                                    <div class="glass-card rounded-xl p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="database" class="w-5 h-5 text-blue-400"></i>
+                                            <h4 class="text-white font-semibold">係數管理</h4>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">內建係數管理與路徑計算，一站式填報效率高</p>
+                                    </div>
+                                    <div class="glass-card rounded-xl p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="pie-chart" class="w-5 h-5 text-blue-400"></i>
+                                            <h4 class="text-white font-semibold">可視化圖表</h4>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">清楚掌握各年度碳排來源</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>ISO 14064 標準符合</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>一站式自動產出盤查報告書</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>內建完整係數庫</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="https://youtu.be/MJr0rrIXIH8?si=t0A0SHeoT-Z4NHJg" target="_blank" class="btn-primary px-6 py-3 rounded-lg text-white font-medium flex items-center space-x-2 ml-4">
+                                <i data-lucide="play" class="w-4 h-4"></i>
+                                <span>觀看 Video</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- EmissiCraft -->
+                    <div id="product-emissicraft" class="product-card glass-card-strong rounded-2xl p-8">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-500 bg-opacity-20 flex items-center justify-center">
+                                        <i data-lucide="layers" class="w-6 h-6 text-purple-400"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-white">EmissiCraft</h3>
+                                        <p class="text-gray-400">碳策師 - 以模組化方式協助企業完成全廠全產品之碳足跡計算，降低人工作業負擔，加速低碳產品管理，從中心廠到供應商都可以適用</p>
+                                    </div>
+                                </div>
+                                <div class="grid md:grid-cols-3 gap-4 mb-4">
+                                    <div class="glass-card rounded-xl p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="git-branch" class="w-5 h-5 text-purple-400"></i>
+                                            <h4 class="text-white font-semibold">生命週期拆解</h4>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">拆解生命週期與產品製程，打破產品框架，降低計算門檻</p>
+                                    </div>
+                                    <div class="glass-card rounded-xl p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="link" class="w-5 h-5 text-purple-400"></i>
+                                            <h4 class="text-white font-semibold">API 整合串接</h4>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">API 整合串接相關系統，掌握碳排熱點，同步減碳降成本</p>
+                                    </div>
+                                    <div class="glass-card rounded-xl p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="users" class="w-5 h-5 text-purple-400"></i>
+                                            <h4 class="text-white font-semibold">永續顧問輔導</h4>
+                                        </div>
+                                        <p class="text-gray-300 text-sm">一條龍永續顧問輔導，符合 CBAM 與客戶需求</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>ISO 14067 生命週期評估</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>LCA 生命週期拆解分析</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>應對 CBAM 模組</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>產出符合查證版之報告書</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="https://youtu.be/kG8CKTC4OHs?si=m6z3L2_6ANBCb5Bb" target="_blank" class="btn-primary px-6 py-3 rounded-lg text-white font-medium flex items-center space-x-2 ml-4">
+                                <i data-lucide="play" class="w-4 h-4"></i>
+                                <span>觀看 Video</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- ESG 數據中台 -->
+                    <div class="product-card glass-card-strong rounded-2xl p-8">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-4">
+                                    <div class="w-12 h-12 rounded-xl bg-indigo-500 bg-opacity-20 flex items-center justify-center">
+                                        <i data-lucide="database" class="w-6 h-6 text-indigo-400"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-white">ESG 數據中台</h3>
+                                        <p class="text-gray-400">企業推動永續轉型自動化的重要基礎設施</p>
+                                    </div>
+                                </div>
+                                <div class="glass-card rounded-xl p-6 mb-4">
+                                    <p class="text-gray-300 leading-relaxed mb-4">
+                                        本平台是企業推動永續轉型自動化的重要基礎設施，整合企業內部各系統（如 ERP、HR、IoT、能源管理系統等），提供統一的 ESG 數據來源與治理架構。
+                                    </p>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div class="flex items-start space-x-3">
+                                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                            <div>
+                                                <h4 class="text-white font-semibold mb-1">標準化資料模型</h4>
+                                                <p class="text-gray-400 text-sm">透過標準化資料模型與自動化流程，有效支持碳盤查、溫室氣體查證、永續報告編製（GRI、SASB 等）及淨零管理</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-3">
+                                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                            <div>
+                                                <h4 class="text-white font-semibold mb-1">數據治理核心</h4>
+                                                <p class="text-gray-400 text-sm">可作為各 ESG 應用系統（產品碳足跡與溫盤系統）的數據核心，提升數據一致性、準確性與即時性，打造企業 ESG 數據治理能力</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>整合 ERP/HR/IoT 數據</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>API 自動化整合</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>ESG 數據治理核心</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 供應鏈管理系統 -->
+                    <div class="product-card glass-card-strong rounded-2xl p-8">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-4">
+                                    <div class="w-12 h-12 rounded-xl bg-teal-500 bg-opacity-20 flex items-center justify-center">
+                                        <i data-lucide="network" class="w-6 h-6 text-teal-400"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-white">供應鏈碳管理系統</h3>
+                                        <p class="text-gray-400">綠色轉型為一團體戰，供應鏈扮演相當重要的角色</p>
+                                    </div>
+                                </div>
+                                <div class="glass-card rounded-xl p-6 mb-4">
+                                    <p class="text-gray-300 leading-relaxed mb-4">
+                                        本平台以提升供應鏈資訊之透明度和完整性為核心，建構碳管理全面向蒐集供應鏈 ESG 管理所需之相關資訊，幫助企業因應 ESG 永續評鑑與國際倡議要求，創造企業綠色轉型第二成長曲線。
+                                    </p>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div class="flex items-start space-x-3">
+                                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                            <div>
+                                                <h4 class="text-white font-semibold mb-1">範疇三完整管理</h4>
+                                                <p class="text-gray-400 text-sm">全面管理供應鏈上下游碳排數據</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-3">
+                                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                            <div>
+                                                <h4 class="text-white font-semibold mb-1">資訊透明度提升</h4>
+                                                <p class="text-gray-400 text-sm">提升供應鏈碳排資訊透明度，因應 ESG 永續評鑑</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>範疇三 (Scope 3) 管理</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>供應商碳排數據收集</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-300">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                                        <span>提升資訊透明度</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 客戶情蒐中心視圖 -->
+        <div id="view-intelligence" class="view-content hidden">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-2">客戶情蒐中心</h2>
+                <p class="text-gray-400 mb-8">AI 深度分析客戶 ESG 需求，自動推薦最適合的解決方案</p>
+                
+                <!-- 情蒐輸入介面 -->
+                <div class="glass-card-strong rounded-2xl p-8 mb-6">
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <input 
+                                type="text" 
+                                id="intelligence-input"
+                                placeholder="輸入客戶名稱或官網網址 (例如：台積電 或 www.tsmc.com)"
+                                class="w-full px-6 py-4 rounded-xl glass-card text-white placeholder-gray-400 border border-white border-opacity-20 focus:border-opacity-40 transition-all bg-transparent"
+                                onkeypress="if(event.key === 'Enter') performIntelligenceSearch()"
+                            />
+                        </div>
+                        <button 
+                            onclick="performIntelligenceSearch()"
+                            id="intelligence-btn"
+                            class="btn-primary px-8 py-4 rounded-xl text-white font-semibold text-lg flex items-center space-x-2 min-w-[180px] justify-center"
+                        >
+                            <i data-lucide="search" class="w-5 h-5" id="intelligence-icon"></i>
+                            <span id="intelligence-btn-text">AI 深度情蒐</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 情蒐結果 -->
+                <div id="intelligence-results" class="hidden slide-up">
+                    <!-- 最新 ESG 動態 -->
+                    <div class="glass-card-strong rounded-2xl p-6 mb-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-3">
+                                <i data-lucide="newspaper" class="w-5 h-5 text-blue-400"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">最新 ESG 動態</h3>
+                        </div>
+                        <div id="esg-dynamic-content" class="space-y-3">
+                            <!-- 動態內容將在此顯示 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 產業痛點分析 -->
+                    <div class="glass-card-strong rounded-2xl p-6 mb-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-full bg-orange-500 bg-opacity-20 flex items-center justify-center mr-3">
+                                <i data-lucide="alert-triangle" class="w-5 h-5 text-orange-400"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">產業痛點分析</h3>
+                        </div>
+                        <div id="pain-points-content" class="space-y-3">
+                            <!-- 動態內容將在此顯示 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 需求診斷結果 -->
+                    <div class="glass-card-strong rounded-2xl p-6 mb-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center mr-3">
+                                <i data-lucide="brain" class="w-5 h-5 text-green-400"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">需求診斷結果</h3>
+                        </div>
+                        <div id="diagnosis-content" class="space-y-4 mb-6">
+                            <!-- 動態內容將在此顯示 -->
+                        </div>
+                        <button 
+                            onclick="generateProposalFromIntelligence()"
+                            class="btn-primary w-full py-4 rounded-xl text-white font-semibold text-lg flex items-center justify-center space-x-2"
+                        >
+                            <i data-lucide="mail" class="w-5 h-5"></i>
+                            <span>一鍵生成對應該客戶痛點的提案信</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 智能提案生成視圖 -->
+        <div id="view-proposal" class="view-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-white mb-2">智能提案生成</h2>
+                <p class="text-gray-400 mb-8">AI 自動生成專業行銷開發信</p>
+                
+                <div class="glass-card-strong rounded-2xl p-8 mb-6">
+                    <div class="mb-6">
+                        <label class="block text-white font-medium mb-3">選擇目標產品</label>
+                        <select id="product-select" class="w-full px-4 py-3 rounded-xl glass-card text-white border border-white border-opacity-20 focus:border-opacity-40 transition-all bg-transparent">
+                            <option value="envision360">EnVision360 能源管理平台</option>
+                            <option value="carbon-envision">Carbon EnVision 雲端碳管理系統</option>
+                            <option value="emissicraft">EmissiCraft 碳策師</option>
+                            <option value="data-platform">ESG 數據中台</option>
+                            <option value="supply-chain">供應鏈管理系統</option>
+                        </select>
+                    </div>
+                    
+                    <button 
+                        onclick="generateEmail()"
+                        class="btn-primary w-full py-4 rounded-xl text-white font-semibold text-lg"
+                    >
+                        <i data-lucide="mail" class="w-5 h-5 inline mr-2"></i>
+                        生成行銷開發信
+                    </button>
+                </div>
+                
+                <!-- Email 預覽 -->
+                <div id="email-preview" class="hidden slide-up">
+                    <div class="glass-card-strong rounded-2xl p-8">
+                        <div class="email-preview rounded-xl p-8 shadow-2xl">
+                            <div class="mb-6 pb-6 border-b border-gray-200">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-800 mb-1">精誠資訊 - ESG 數位化解決方案</h3>
+                                        <p class="text-sm text-gray-600">ESG Smart Navigator 自動生成</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm text-gray-500" id="email-date"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6" id="email-content">
+                                <!-- Email 內容將動態生成 -->
+                            </div>
+                            
+                            <div class="flex space-x-4 mt-8 pt-6 border-t border-gray-200">
+                                <button onclick="copyEmailContent()" class="btn-primary px-6 py-3 rounded-lg text-white font-medium flex-1 flex items-center justify-center space-x-2">
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                    <span>複製內容</span>
+                                </button>
+                                <button onclick="downloadEmail()" class="px-6 py-3 rounded-lg border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors flex-1 flex items-center justify-center space-x-2">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                    <span>下載 PDF</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // 初始化 Lucide Icons
+        lucide.createIcons();
+        
+        function switchView(view) {
+            // 隱藏所有視圖
+            document.querySelectorAll('.view-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('fade-in');
+            });
+            
+            // 移除所有導覽項目的 active 狀態
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+                el.classList.remove('text-white');
+                el.classList.add('text-gray-400');
+            });
+            
+            // 顯示選中的視圖
+            const selectedView = document.getElementById(`view-${view}`);
+            if (selectedView) {
+                selectedView.classList.remove('hidden');
+                selectedView.classList.add('fade-in');
+            }
+            
+            // 設定選中的導覽項目為 active
+            const selectedNav = document.getElementById(`nav-${view}`);
+            if (selectedNav) {
+                selectedNav.classList.add('active');
+                selectedNav.classList.remove('text-gray-400');
+                selectedNav.classList.add('text-white');
+            }
+            
+            // 重新初始化 icons
+            setTimeout(() => lucide.createIcons(), 100);
+        }
+        
+        function showVoluntaryOptions() {
+            const optionsDiv = document.getElementById('voluntary-options');
+            const resultDiv = document.getElementById('diagnostic-result');
+            
+            // 隱藏之前的診斷結果
+            resultDiv.classList.add('hidden');
+            
+            // 顯示選項
+            optionsDiv.classList.remove('hidden');
+            optionsDiv.classList.add('slide-up');
+            
+            // 滾動到選項
+            setTimeout(() => {
+                optionsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+        
+        function diagnoseAndNavigate(type) {
+            // 隱藏自發性選項
+            const optionsDiv = document.getElementById('voluntary-options');
+            if (optionsDiv) {
+                optionsDiv.classList.add('hidden');
+            }
+            
+            const resultDiv = document.getElementById('diagnostic-result');
+            const contentDiv = document.getElementById('diagnostic-content');
+            
+            let content = '';
+            
+            if (type === 'electricity') {
+                content = `
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-red-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i data-lucide="zap" class="w-6 h-6 text-red-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">診斷結果：電價調漲挑戰</h3>
+                            <p class="text-gray-400">推薦解決方案</p>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-6 mb-4 border-l-4 border-green-500">
+                        <h4 class="text-xl font-bold text-white mb-3">EnVision360 能源管理平台</h4>
+                        <p class="text-gray-300 mb-4">針對工業電價漲幅 66% 的挑戰，EnVision360 提供完整的能源管理解決方案：</p>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>AI 冰機節能優化，降低 15-20% 能耗</span>
+                            </li>
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>儲能削峰填谷，減少尖峰用電成本</span>
+                            </li>
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>預計可節省 10-15% 電費</span>
+                            </li>
+                        </ul>
+                        <button onclick="switchView('products'); setTimeout(() => document.getElementById('product-envision360').scrollIntoView({behavior: 'smooth'}), 300)" class="btn-primary px-6 py-3 rounded-lg text-white font-medium">
+                            查看 EnVision360 詳情 →
+                        </button>
+                    </div>
+                `;
+            } else if (type === 'cbam') {
+                content = `
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-orange-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i data-lucide="globe" class="w-6 h-6 text-orange-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">診斷結果：CBAM 規範需求</h3>
+                            <p class="text-gray-400">推薦解決方案</p>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-6 mb-4 border-l-4 border-purple-500">
+                        <h4 class="text-xl font-bold text-white mb-3">EmissiCraft 碳策師</h4>
+                        <p class="text-gray-300 mb-4">針對出口歐盟 CBAM 規範，EmissiCraft 提供完整的產品碳足跡管理：</p>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>ISO 14067 生命週期評估標準</span>
+                            </li>
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>LCA 生命週期完整拆解分析</span>
+                            </li>
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>產出符合查證版之報告書</span>
+                            </li>
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>應對 CBAM 模組完整支援</span>
+                            </li>
+                        </ul>
+                        <button onclick="switchView('products'); setTimeout(() => document.getElementById('product-emissicraft').scrollIntoView({behavior: 'smooth'}), 300)" class="btn-primary px-6 py-3 rounded-lg text-white font-medium">
+                            查看 EmissiCraft 詳情 →
+                        </button>
+                    </div>
+                `;
+            } else if (type === 'compliance') {
+                content = `
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i data-lucide="file-check" class="w-6 h-6 text-blue-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">診斷結果：法規盤查需求</h3>
+                            <p class="text-gray-400">推薦解決方案</p>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="glass-card rounded-xl p-6 border-l-4 border-blue-500">
+                            <h4 class="text-xl font-bold text-white mb-3">Carbon EnVision 雲端碳管理系統</h4>
+                            <p class="text-gray-300 mb-4">針對 ISO 14064 盤查需求，提供一站式解決方案：</p>
+                            <ul class="space-y-2 mb-4">
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>ISO 14064-1 標準完全符合</span>
+                                </li>
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>自動產出溫盤報告書及清冊框架</span>
+                                </li>
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>內建係數管理與路徑計算</span>
+                                </li>
+                            </ul>
+                            <button onclick="switchView('products'); setTimeout(() => document.getElementById('product-carbon-envision').scrollIntoView({behavior: 'smooth'}), 300)" class="btn-primary px-6 py-3 rounded-lg text-white font-medium w-full">
+                                查看 Carbon EnVision →
+                            </button>
+                        </div>
+                        <div class="glass-card rounded-xl p-6 border-l-4 border-purple-500">
+                            <h4 class="text-xl font-bold text-white mb-3">EmissiCraft 碳策師</h4>
+                            <p class="text-gray-300 mb-4">針對 ISO 14067 產品碳足跡盤查，提供模組化解決方案：</p>
+                            <ul class="space-y-2 mb-4">
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>ISO 14067 生命週期評估</span>
+                                </li>
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>LCA 生命週期拆解分析</span>
+                                </li>
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>降低人工作業負擔</span>
+                                </li>
+                            </ul>
+                            <button onclick="switchView('products'); setTimeout(() => document.getElementById('product-emissicraft').scrollIntoView({behavior: 'smooth'}), 300)" class="btn-primary px-6 py-3 rounded-lg text-white font-medium w-full">
+                                查看 EmissiCraft →
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'voluntary-org-carbon') {
+                content = `
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i data-lucide="building" class="w-6 h-6 text-green-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">診斷結果：組織碳盤查需求</h3>
+                            <p class="text-gray-400">推薦解決方案</p>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="glass-card rounded-xl p-6 border-l-4 border-blue-500">
+                            <h4 class="text-xl font-bold text-white mb-3">Carbon EnVision</h4>
+                            <p class="text-gray-300 mb-4">雲端碳管理系統，推進盤查數位化：</p>
+                            <ul class="space-y-2 mb-4">
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>ISO 14064-1 標準符合</span>
+                                </li>
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>自動產出溫盤報告書</span>
+                                </li>
+                            </ul>
+                            <button onclick="switchView('products'); setTimeout(() => document.getElementById('product-carbon-envision').scrollIntoView({behavior: 'smooth'}), 300)" class="btn-primary px-6 py-3 rounded-lg text-white font-medium w-full">
+                                查看 Carbon EnVision →
+                            </button>
+                        </div>
+                        <div class="glass-card rounded-xl p-6 border-l-4 border-purple-500">
+                            <h4 class="text-xl font-bold text-white mb-3">EmissiCraft</h4>
+                            <p class="text-gray-300 mb-4">碳策師，模組化協助完成碳足跡計算：</p>
+                            <ul class="space-y-2 mb-4">
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>ISO 14067 生命週期評估</span>
+                                </li>
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>降低人工作業負擔</span>
+                                </li>
+                            </ul>
+                            <button onclick="switchView('products'); setTimeout(() => document.getElementById('product-emissicraft').scrollIntoView({behavior: 'smooth'}), 300)" class="btn-primary px-6 py-3 rounded-lg text-white font-medium w-full">
+                                查看 EmissiCraft →
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'voluntary-product-carbon') {
+                // 自動切換至 EmissiCraft
+                switchView('products');
+                setTimeout(() => {
+                    document.getElementById('product-emissicraft').scrollIntoView({behavior: 'smooth'});
+                }, 300);
+                return;
+            } else if (type === 'voluntary-supply-chain') {
+                content = `
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i data-lucide="network" class="w-6 h-6 text-green-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">診斷結果：供應鏈管理需求</h3>
+                            <p class="text-gray-400">推薦解決方案</p>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="glass-card rounded-xl p-6 border-l-4 border-teal-500">
+                            <h4 class="text-xl font-bold text-white mb-3">供應鏈碳管理系統</h4>
+                            <p class="text-gray-300 mb-4">提升供應鏈資訊透明度與完整性：</p>
+                            <ul class="space-y-2 mb-4">
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>範疇三 (Scope 3) 管理</span>
+                                </li>
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>供應商碳排數據收集</span>
+                                </li>
+                            </ul>
+                            <button onclick="switchView('products'); setTimeout(() => { const el = document.querySelectorAll('.product-card')[4]; if(el) el.scrollIntoView({behavior: 'smooth'}); }, 300)" class="btn-primary px-6 py-3 rounded-lg text-white font-medium w-full">
+                                查看供應鏈管理系統 →
+                            </button>
+                        </div>
+                        <div class="glass-card rounded-xl p-6 border-l-4 border-purple-500">
+                            <h4 class="text-xl font-bold text-white mb-3">EmissiCraft</h4>
+                            <p class="text-gray-300 mb-4">從中心廠到供應商都可以適用：</p>
+                            <ul class="space-y-2 mb-4">
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>API 整合串接相關系統</span>
+                                </li>
+                                <li class="flex items-start space-x-2 text-gray-300">
+                                    <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                    <span>掌握碳排熱點</span>
+                                </li>
+                            </ul>
+                            <button onclick="switchView('products'); setTimeout(() => document.getElementById('product-emissicraft').scrollIntoView({behavior: 'smooth'}), 300)" class="btn-primary px-6 py-3 rounded-lg text-white font-medium w-full">
+                                查看 EmissiCraft →
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'voluntary-data-platform') {
+                content = `
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i data-lucide="database" class="w-6 h-6 text-green-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">診斷結果：ESG 相關數據平台需求</h3>
+                            <p class="text-gray-400">推薦解決方案</p>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-6 border-l-4 border-indigo-500">
+                        <h4 class="text-xl font-bold text-white mb-3">ESG 數據中台</h4>
+                        <p class="text-gray-300 mb-4">企業推動永續轉型自動化的重要基礎設施：</p>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>整合 ERP/HR/IoT 數據</span>
+                            </li>
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>API 自動化整合</span>
+                            </li>
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>ESG 數據治理核心</span>
+                            </li>
+                        </ul>
+                        <button onclick="switchView('products'); setTimeout(() => { const el = document.querySelectorAll('.product-card')[3]; if(el) el.scrollIntoView({behavior: 'smooth'}); }, 300)" class="btn-primary px-6 py-3 rounded-lg text-white font-medium w-full">
+                            查看 ESG 數據中台 →
+                        </button>
+                    </div>
+                `;
+            } else if (type === 'voluntary-energy') {
+                content = `
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i data-lucide="battery-charging" class="w-6 h-6 text-green-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">診斷結果：能源管理需求</h3>
+                            <p class="text-gray-400">推薦解決方案</p>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-6 border-l-4 border-green-500">
+                        <h4 class="text-xl font-bold text-white mb-3">EnVision360 能源管理平台</h4>
+                        <div class="bg-green-500 bg-opacity-20 rounded-lg p-4 mb-4 border border-green-500 border-opacity-30">
+                            <div class="flex items-center mb-2">
+                                <i data-lucide="trending-down" class="w-6 h-6 text-green-400 mr-2"></i>
+                                <h5 class="text-lg font-bold text-white">預計可節省 10-15% 電費</h5>
+                            </div>
+                            <p class="text-gray-300 text-sm">透過 AI 冰機節能優化與儲能削峰填谷系統，有效降低能源成本</p>
+                        </div>
+                        <p class="text-gray-300 mb-4">針對能源管理需求，EnVision360 提供完整的解決方案：</p>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>視覺圖表分析，助企業快速決策，找出用電怪獸</span>
+                            </li>
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>數據驅動能源監控，實現節能目標</span>
+                            </li>
+                            <li class="flex items-start space-x-2 text-gray-300">
+                                <i data-lucide="check" class="w-5 h-5 text-green-400 mt-0.5"></i>
+                                <span>儲能削峰填谷，減少尖峰用電成本</span>
+                            </li>
+                        </ul>
+                        <button onclick="switchView('products'); setTimeout(() => document.getElementById('product-envision360').scrollIntoView({behavior: 'smooth'}), 300)" class="btn-primary px-6 py-3 rounded-lg text-white font-medium w-full">
+                            查看 EnVision360 詳情 →
+                        </button>
+                    </div>
+                `;
+            }
+            
+            contentDiv.innerHTML = content;
+            resultDiv.classList.remove('hidden');
+            resultDiv.classList.add('slide-up');
+            
+            // 重新初始化 icons
+            setTimeout(() => lucide.createIcons(), 100);
+            
+            // 滾動到結果
+            setTimeout(() => {
+                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+        
+        // 客戶情蒐中心相關函數
+        let currentIntelligenceData = null;
+        
+        function performIntelligenceSearch() {
+            const input = document.getElementById('intelligence-input').value.trim();
+            const btn = document.getElementById('intelligence-btn');
+            const btnText = document.getElementById('intelligence-btn-text');
+            const icon = document.getElementById('intelligence-icon');
+            const resultsDiv = document.getElementById('intelligence-results');
+            
+            if (!input) {
+                alert('請輸入客戶名稱或官網網址');
+                return;
+            }
+            
+            // 顯示載入動畫
+            btn.disabled = true;
+            btnText.textContent = 'AI 分析中...';
+            icon.setAttribute('data-lucide', 'loader-2');
+            lucide.createIcons();
+            
+            // 模擬 AI 分析過程（2-3秒）
+            setTimeout(() => {
+                // 分析輸入並生成結果
+                const intelligenceData = analyzeIntelligence(input);
+                currentIntelligenceData = intelligenceData;
+                
+                // 顯示結果
+                displayIntelligenceResults(intelligenceData);
+                
+                // 恢復按鈕
+                btn.disabled = false;
+                btnText.textContent = 'AI 深度情蒐';
+                icon.setAttribute('data-lucide', 'search');
+                lucide.createIcons();
+                
+                // 顯示結果區塊
+                resultsDiv.classList.remove('hidden');
+                resultsDiv.classList.add('slide-up');
+                
+                // 滾動到結果
+                setTimeout(() => {
+                    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }, 2500);
+        }
+        
+        function analyzeIntelligence(input) {
+            const lowerInput = input.toLowerCase();
+            
+            // 診斷邏輯 A：用電大戶/電價調漲
+            if (lowerInput.includes('台積電') || lowerInput.includes('tsmc') || 
+                lowerInput.includes('製造業') || lowerInput.includes('半導體') ||
+                lowerInput.includes('電子') || lowerInput.includes('科技業')) {
+                return {
+                    company: input.includes('台積電') ? '台積電' : (input.includes('製造業') ? '製造業客戶' : '科技業客戶'),
+                    esgDynamic: [
+                        {
+                            type: 'warning',
+                            title: '電價調漲壓力',
+                            content: '2024年工業電價調漲 66%，對用電大戶造成重大成本壓力。',
+                            time: '2024年12月'
+                        },
+                        {
+                            type: 'info',
+                            title: '淨零目標',
+                            content: '宣布 2030 年達成淨零排放目標，需要完整的能源管理解決方案。',
+                            time: '2024年11月'
+                        }
+                    ],
+                    painPoints: [
+                        {
+                            title: '能源管理法規',
+                            content: '用電大戶條款要求年用電量超過 5,000 瓩的企業，需設置再生能源或節能設備。',
+                            icon: 'zap'
+                        },
+                        {
+                            title: '電價成本壓力',
+                            content: '工業電價大幅調漲，急需透過 AI 節能與儲能系統降低用電成本。',
+                            icon: 'trending-up'
+                        }
+                    ],
+                    recommendations: [
+                        {
+                            product: 'EnVision360',
+                            productName: 'EnVision360 能源管理平台',
+                            reason: '偵測到電價調漲壓力',
+                            highlight: 'AI 冰機節能可解決 66% 電價漲幅壓力',
+                            icon: 'battery-charging',
+                            color: 'green'
+                        }
+                    ]
+                };
+            }
+            
+            // 診斷邏輯 B：出口歐洲/國際供應鏈
+            if (lowerInput.includes('出口') || lowerInput.includes('歐洲') || 
+                lowerInput.includes('歐盟') || lowerInput.includes('cbam') ||
+                lowerInput.includes('供應鏈') || lowerInput.includes('國際')) {
+                return {
+                    company: input,
+                    esgDynamic: [
+                        {
+                            type: 'warning',
+                            title: 'CBAM 規範要求',
+                            content: '出口至歐盟市場需符合 CBAM（碳邊境調整機制）規範，需提供產品碳足跡報告。',
+                            time: '2024年12月'
+                        },
+                        {
+                            type: 'info',
+                            title: '國際供應鏈管理',
+                            content: '國際品牌客戶要求供應鏈碳排數據透明化，需建立完整的供應鏈管理系統。',
+                            time: '2024年11月'
+                        }
+                    ],
+                    painPoints: [
+                        {
+                            title: 'CBAM 法規',
+                            content: '歐盟 CBAM 要求進口產品需申報碳排，不符合規範將面臨碳關稅。',
+                            icon: 'globe'
+                        },
+                        {
+                            title: '供應鏈碳排管理',
+                            content: '國際客戶要求範疇三（Scope 3）碳排數據，需建立供應鏈管理機制。',
+                            icon: 'network'
+                        }
+                    ],
+                    recommendations: [
+                        {
+                            product: 'EmissiCraft',
+                            productName: 'EmissiCraft 碳策師',
+                            reason: '偵測到出口歐洲/國際供應鏈需求',
+                            highlight: '符合 CBAM 規範，產出 ISO 14067 產品碳足跡報告',
+                            icon: 'layers',
+                            color: 'purple'
+                        },
+                        {
+                            product: 'SupplyChain',
+                            productName: '供應鏈管理系統',
+                            reason: '需要管理供應鏈碳排數據',
+                            highlight: '範疇三管理，提升供應鏈資訊透明度',
+                            icon: 'network',
+                            color: 'teal'
+                        }
+                    ]
+                };
+            }
+            
+            // 診斷邏輯 C：多據點管理/數據混亂
+            if (lowerInput.includes('多據點') || lowerInput.includes('數據') || 
+                lowerInput.includes('整合') || lowerInput.includes('系統') ||
+                lowerInput.includes('管理') || lowerInput.includes('平台')) {
+                return {
+                    company: input,
+                    esgDynamic: [
+                        {
+                            type: 'info',
+                            title: '數據整合需求',
+                            content: '多據點營運導致 ESG 數據分散，需要統一數據平台進行整合管理。',
+                            time: '2024年12月'
+                        },
+                        {
+                            type: 'warning',
+                            title: '數據治理壓力',
+                            content: 'ESG 報告編製需要整合 ERP、HR、IoT 等多個系統數據，目前缺乏統一平台。',
+                            time: '2024年11月'
+                        }
+                    ],
+                    painPoints: [
+                        {
+                            title: '數據分散',
+                            content: 'ESG 數據分散在各個系統中，缺乏統一的數據來源與治理架構。',
+                            icon: 'database'
+                        },
+                        {
+                            title: '整合困難',
+                            content: '需要整合 ERP、HR、IoT、能源管理系統等多個系統，目前缺乏自動化整合機制。',
+                            icon: 'link'
+                        }
+                    ],
+                    recommendations: [
+                        {
+                            product: 'DataPlatform',
+                            productName: 'ESG 數據中台',
+                            reason: '偵測到多據點管理/數據混亂',
+                            highlight: '整合 ERP/HR/IoT 數據，API 自動化，ESG 數據治理核心',
+                            icon: 'database',
+                            color: 'indigo'
+                        }
+                    ]
+                };
+            }
+            
+            // 預設診斷（一般製造業）
+            return {
+                company: input,
+                esgDynamic: [
+                    {
+                        type: 'info',
+                        title: 'ESG 永續轉型',
+                        content: '企業開始重視 ESG 永續發展，需要建立完整的 ESG 管理機制。',
+                        time: '2024年12月'
+                    }
+                ],
+                painPoints: [
+                    {
+                        title: '法規遵循',
+                        content: '需要符合 ISO 14064 碳盤查規範，並產出符合標準的報告書。',
+                        icon: 'file-check'
+                    }
+                ],
+                recommendations: [
+                    {
+                        product: 'CarbonEnVision',
+                        productName: 'Carbon EnVision 雲端碳管理系統',
+                        reason: '需要進行組織碳盤查',
+                        highlight: 'ISO 14064 標準符合，一站式自動產出盤查報告書',
+                        icon: 'cloud',
+                        color: 'blue'
+                    }
+                ]
+            };
+        }
+        
+        function displayIntelligenceResults(data) {
+            // 顯示最新 ESG 動態
+            const esgContent = document.getElementById('esg-dynamic-content');
+            esgContent.innerHTML = data.esgDynamic.map(item => `
+                <div class="glass-card rounded-xl p-4 border-l-4 ${item.type === 'warning' ? 'border-orange-500' : 'border-blue-500'}">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i data-lucide="${item.type === 'warning' ? 'alert-triangle' : 'info'}" class="w-4 h-4 ${item.type === 'warning' ? 'text-orange-400' : 'text-blue-400'}"></i>
+                                <h4 class="font-semibold text-white">${item.title}</h4>
+                            </div>
+                            <p class="text-gray-300 text-sm">${item.content}</p>
+                        </div>
+                        <span class="text-xs text-gray-400 ml-4">${item.time}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            // 顯示產業痛點分析
+            const painPointsContent = document.getElementById('pain-points-content');
+            painPointsContent.innerHTML = data.painPoints.map(item => `
+                <div class="glass-card rounded-xl p-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-orange-500 bg-opacity-20 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="${item.icon}" class="w-5 h-5 text-orange-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white mb-1">${item.title}</h4>
+                            <p class="text-gray-300 text-sm">${item.content}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // 顯示需求診斷結果
+            const diagnosisContent = document.getElementById('diagnosis-content');
+            
+            const colorMap = {
+                'green': { border: 'rgba(34, 197, 94, 0.5)', bg: 'rgba(34, 197, 94, 0.2)', text: 'rgba(74, 222, 128, 1)', icon: 'rgba(74, 222, 128, 1)', badge: 'rgba(34, 197, 94, 1)' },
+                'purple': { border: 'rgba(168, 85, 247, 0.5)', bg: 'rgba(168, 85, 247, 0.2)', text: 'rgba(196, 181, 253, 1)', icon: 'rgba(196, 181, 253, 1)', badge: 'rgba(168, 85, 247, 1)' },
+                'teal': { border: 'rgba(20, 184, 166, 0.5)', bg: 'rgba(20, 184, 166, 0.2)', text: 'rgba(94, 234, 212, 1)', icon: 'rgba(94, 234, 212, 1)', badge: 'rgba(20, 184, 166, 1)' },
+                'indigo': { border: 'rgba(99, 102, 241, 0.5)', bg: 'rgba(99, 102, 241, 0.2)', text: 'rgba(165, 180, 252, 1)', icon: 'rgba(165, 180, 252, 1)', badge: 'rgba(99, 102, 241, 1)' },
+                'blue': { border: 'rgba(59, 130, 246, 0.5)', bg: 'rgba(59, 130, 246, 0.2)', text: 'rgba(147, 197, 253, 1)', icon: 'rgba(147, 197, 253, 1)', badge: 'rgba(59, 130, 246, 1)' }
+            };
+            
+            diagnosisContent.innerHTML = `
+                <div class="mb-4">
+                    <p class="text-gray-300 mb-4">AI 根據上述資訊，自動從「ESG@IT 產品」中勾選出最推薦的產品：</p>
+                </div>
+                ${data.recommendations.map((item, index) => {
+                    const colors = colorMap[item.color] || colorMap['blue'];
+                    return `
+                    <div class="glass-card rounded-xl p-5 relative" style="border: 2px solid ${colors.border}">
+                        <div class="absolute top-3 right-3">
+                            <span class="text-white text-xs font-bold px-3 py-1 rounded-full" style="background-color: ${colors.badge}">推薦</span>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: ${colors.bg}">
+                                <i data-lucide="${item.icon}" class="w-6 h-6" style="color: ${colors.icon}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-white mb-2">${item.productName}</h4>
+                                <p class="text-gray-300 text-sm mb-2">${item.reason}</p>
+                                <div class="rounded-lg p-3" style="background-color: ${colors.bg}; border: 1px solid ${colors.border}">
+                                    <p class="text-sm font-semibold" style="color: ${colors.text}">${item.highlight}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                }).join('')}
+            `;
+            
+            // 重新初始化 icons
+            setTimeout(() => lucide.createIcons(), 100);
+        }
+        
+        function generateProposalFromIntelligence() {
+            if (!currentIntelligenceData || !currentIntelligenceData.recommendations.length) {
+                alert('請先進行客戶情蒐分析');
+                return;
+            }
+            
+            // 切換到智能提案生成視圖
+            switchView('proposal');
+            
+            // 根據推薦的產品設定選單
+            const productSelect = document.getElementById('product-select');
+            const firstRecommendation = currentIntelligenceData.recommendations[0];
+            
+            // 映射產品名稱到選單值
+            const productMap = {
+                'EnVision360': 'envision360',
+                'EmissiCraft': 'emissicraft',
+                'SupplyChain': 'supply-chain',
+                'DataPlatform': 'data-platform',
+                'CarbonEnVision': 'carbon-envision'
+            };
+            
+            if (productMap[firstRecommendation.product]) {
+                productSelect.value = productMap[firstRecommendation.product];
+            }
+            
+            // 自動生成 Email
+            setTimeout(() => {
+                generateEmail();
+            }, 500);
+        }
+        
+        const emailTemplates = {
+            'envision360': {
+                title: 'EnVision360 能源管理平台 - 解決電價調漲挑戰',
+                content: `
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        <strong class="text-gray-900">親愛的 [客戶名稱] 您好，</strong>
+                    </p>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        感謝您對精誠資訊 ESG 解決方案的關注。我們了解到貴公司正面臨工業電價漲幅 66% 的嚴峻挑戰，急需有效的能源管理解決方案。
+                    </p>
+                    
+                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4 my-6 rounded-r-lg">
+                        <h4 class="font-semibold text-gray-900 mb-2">EnVision360 能源管理平台</h4>
+                        <p class="text-gray-700 text-sm mb-3">為您提供完整的能源優化解決方案：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+                            <li><strong>AI 冰機節能優化：</strong>透過 AI 演算法自動優化冰機運轉，降低 15-20% 能耗</li>
+                            <li><strong>儲能削峰填谷：</strong>智能調度儲能系統，減少尖峰用電成本</li>
+                            <li><strong>能效監控分析：</strong>即時監控能源使用狀況，提供優化建議</li>
+                            <li><strong>預計節省：</strong>可節省 10-15% 電費支出</li>
+                        </ul>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        我們誠摯邀請您觀看 EnVision360 的產品介紹影片，了解如何透過 AI 技術優化能源管理，有效應對電價調漲的挑戰。
+                    </p>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg my-6">
+                        <a href="https://youtu.be/AtMEERdiMCE?si=pKXanIJjTbR0XX6J" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-2">
+                            <i data-lucide="play-circle" class="w-5 h-5"></i>
+                            <span>觀看 EnVision360 產品影片</span>
+                        </a>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        我們提供免費的能源診斷服務，協助您評估現有能源使用狀況，並提供客製化的節能方案建議。
+                    </p>
+                    
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        期待與您進一步交流，共同推動貴公司的 ESG 永續發展目標。
+                    </p>
+                `
+            },
+            'carbon-envision': {
+                title: 'Carbon EnVision 雲端碳管理系統 - ISO 14064 盤查解決方案',
+                content: `
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        <strong class="text-gray-900">親愛的 [客戶名稱] 您好，</strong>
+                    </p>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        感謝您對精誠資訊 ESG 解決方案的關注。我們了解到貴公司需要進行 ISO 14064 碳盤查，並產出符合標準的報告書。
+                    </p>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 my-6 rounded-r-lg">
+                        <h4 class="font-semibold text-gray-900 mb-2">Carbon EnVision 雲端碳管理系統</h4>
+                        <p class="text-gray-700 text-sm mb-3">為您提供完整的碳管理解決方案：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+                            <li><strong>ISO 14064 標準符合：</strong>完全符合國際碳盤查標準</li>
+                            <li><strong>一站式自動產出：</strong>自動產出符合規範的盤查報告書</li>
+                            <li><strong>內建係數庫：</strong>整合完整的排放係數資料庫，減少人工計算</li>
+                            <li><strong>雲端協作：</strong>支援多部門協作，提升盤查效率</li>
+                        </ul>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        我們誠摯邀請您觀看 Carbon EnVision 的產品介紹影片，了解如何透過雲端平台簡化碳盤查流程。
+                    </p>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg my-6">
+                        <a href="https://youtu.be/MJr0rrIXIH8?si=t0A0SHeoT-Z4NHJg" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-2">
+                            <i data-lucide="play-circle" class="w-5 h-5"></i>
+                            <span>觀看 Carbon EnVision 產品影片</span>
+                        </a>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        我們提供免費的碳盤查諮詢服務，協助您評估現有盤查流程，並提供客製化的解決方案建議。
+                    </p>
+                    
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        期待與您進一步交流，共同推動貴公司的 ESG 永續發展目標。
+                    </p>
+                `
+            },
+            'emissicraft': {
+                title: 'EmissiCraft 碳策師 - CBAM 規範完整解決方案',
+                content: `
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        <strong class="text-gray-900">親愛的 [客戶名稱] 您好，</strong>
+                    </p>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        感謝您對精誠資訊 ESG 解決方案的關注。我們了解到貴公司需要出口產品至歐盟，面臨 CBAM（碳邊境調整機制）規範的挑戰。
+                    </p>
+                    
+                    <div class="bg-purple-50 border-l-4 border-purple-500 p-4 my-6 rounded-r-lg">
+                        <h4 class="font-semibold text-gray-900 mb-2">EmissiCraft 碳策師</h4>
+                        <p class="text-gray-700 text-sm mb-3">為您提供完整的產品碳足跡管理：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+                            <li><strong>ISO 14067 標準：</strong>符合產品碳足跡國際標準</li>
+                            <li><strong>LCA 生命週期拆解：</strong>完整分析產品從原料到廢棄的碳排</li>
+                            <li><strong>CBAM 模組：</strong>專為 CBAM 規範設計的報告產出模組</li>
+                            <li><strong>查證版報告：</strong>產出符合第三方查證要求的報告書</li>
+                        </ul>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        我們誠摯邀請您觀看 EmissiCraft 的產品介紹影片，了解如何透過 LCA 分析產出符合 CBAM 規範的報告。
+                    </p>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg my-6">
+                        <a href="https://youtu.be/kG8CKTC4OHs?si=m6z3L2_6ANBCb5Bb" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-2">
+                            <i data-lucide="play-circle" class="w-5 h-5"></i>
+                            <span>觀看 EmissiCraft 產品影片</span>
+                        </a>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        我們提供免費的 CBAM 規範諮詢服務，協助您評估產品碳足跡，並提供客製化的解決方案建議。
+                    </p>
+                    
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        期待與您進一步交流，共同推動貴公司的 ESG 永續發展目標。
+                    </p>
+                `
+            },
+            'data-platform': {
+                title: 'ESG 數據中台 - 整合企業數據治理核心',
+                content: `
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        <strong class="text-gray-900">親愛的 [客戶名稱] 您好，</strong>
+                    </p>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        感謝您對精誠資訊 ESG 解決方案的關注。我們了解到貴公司需要整合多個系統的 ESG 數據，建立完整的數據治理架構。
+                    </p>
+                    
+                    <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 my-6 rounded-r-lg">
+                        <h4 class="font-semibold text-gray-900 mb-2">ESG 數據中台</h4>
+                        <p class="text-gray-700 text-sm mb-3">為您提供完整的數據整合解決方案：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+                            <li><strong>多系統整合：</strong>整合 ERP、HR、IoT 等系統數據</li>
+                            <li><strong>API 自動化：</strong>透過 API 自動化數據收集與同步</li>
+                            <li><strong>數據治理：</strong>建立完整的 ESG 數據治理架構</li>
+                            <li><strong>即時監控：</strong>即時監控 ESG 指標，提供決策支援</li>
+                        </ul>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        我們提供免費的數據整合諮詢服務，協助您評估現有系統架構，並提供客製化的整合方案建議。
+                    </p>
+                    
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        期待與您進一步交流，共同推動貴公司的 ESG 永續發展目標。
+                    </p>
+                `
+            },
+            'supply-chain': {
+                title: '供應鏈管理系統 - 範疇三碳排完整管理',
+                content: `
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        <strong class="text-gray-900">親愛的 [客戶名稱] 您好，</strong>
+                    </p>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        感謝您對精誠資訊 ESG 解決方案的關注。我們了解到貴公司需要管理供應鏈的碳排數據，提升範疇三（Scope 3）的資訊透明度。
+                    </p>
+                    
+                    <div class="bg-teal-50 border-l-4 border-teal-500 p-4 my-6 rounded-r-lg">
+                        <h4 class="font-semibold text-gray-900 mb-2">供應鏈管理系統</h4>
+                        <p class="text-gray-700 text-sm mb-3">為您提供完整的供應鏈碳排管理：</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+                            <li><strong>範疇三管理：</strong>完整管理供應鏈上下游碳排</li>
+                            <li><strong>數據收集：</strong>自動化收集供應商碳排數據</li>
+                            <li><strong>資訊透明：</strong>提升供應鏈碳排資訊透明度</li>
+                            <li><strong>風險評估：</strong>識別高碳排供應商，進行風險管理</li>
+                        </ul>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        我們提供免費的供應鏈碳排管理諮詢服務，協助您評估現有供應鏈狀況，並提供客製化的管理方案建議。
+                    </p>
+                    
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        期待與您進一步交流，共同推動貴公司的 ESG 永續發展目標。
+                    </p>
+                `
+            }
+        };
+        
+        function generateEmail() {
+            const productSelect = document.getElementById('product-select');
+            const selectedProduct = productSelect.value;
+            const template = emailTemplates[selectedProduct];
+            
+            if (!template) return;
+            
+            const emailPreview = document.getElementById('email-preview');
+            const emailContent = document.getElementById('email-content');
+            const emailDate = document.getElementById('email-date');
+            
+            // 設定日期
+            const now = new Date();
+            emailDate.textContent = now.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            // 設定標題和內容
+            emailContent.innerHTML = `
+                <h3 class="text-xl font-bold text-gray-800 mb-4">${template.title}</h3>
+                ${template.content}
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <p class="text-gray-700 mb-2">
+                        <strong>此致</strong><br>
+                        精誠資訊股份有限公司<br>
+                        ＸＸＸ
+                    </p>
+                    <p class="text-sm text-gray-500 mt-4">
+                        聯絡方式：xxx@systex.com | 02-7720-1888 #<br>
+                        <a href="https://tw.systex.com" target="_blank" class="text-blue-600 hover:text-blue-800">www.systex.com.tw</a>
+                    </p>
+                </div>
+            `;
+            
+            emailPreview.classList.remove('hidden');
+            emailPreview.classList.add('slide-up');
+            
+            // 重新初始化 icons
+            setTimeout(() => lucide.createIcons(), 100);
+            
+            // 滾動到預覽
+            setTimeout(() => {
+                emailPreview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+        
+        function copyEmailContent() {
+            const emailContent = document.getElementById('email-content');
+            const text = emailContent.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Email 內容已複製到剪貼簿！');
+            }).catch(() => {
+                alert('複製失敗，請手動選取內容複製。');
+            });
+        }
+        
+        function downloadEmail() {
+            alert('PDF 下載功能將在正式版本中提供。');
+        }
+        
+        // 初始化：顯示客戶情蒐分析視圖
+        document.addEventListener('DOMContentLoaded', () => {
+            switchView('intelligence');
+        });
+    </script>
+</body>
+</html>
