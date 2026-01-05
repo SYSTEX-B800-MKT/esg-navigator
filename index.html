@@ -157,6 +157,69 @@
         .esg-green-border {
             border-color: #2D5A27;
         }
+        
+        /* 語音錄音按鈕動畫 */
+        .voice-btn.recording {
+            background: rgba(220, 38, 38, 0.4) !important;
+            animation: pulse-red-wave 1.2s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .voice-btn.recording::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.3);
+            transform: translate(-50%, -50%);
+            animation: ripple-wave 1.2s ease-out infinite;
+        }
+        
+        .voice-btn.recording i {
+            color: #ef4444 !important;
+            animation: mic-pulse 0.8s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+        
+        @keyframes pulse-red-wave {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8),
+                            0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0),
+                            0 0 0 16px rgba(239, 68, 68, 0);
+            }
+        }
+        
+        @keyframes ripple-wave {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                width: 60px;
+                height: 60px;
+                opacity: 0;
+            }
+        }
+        
+        @keyframes mic-pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
@@ -735,14 +798,44 @@
                 <!-- 情蒐輸入介面 -->
                 <div class="glass-card-strong rounded-2xl p-8 mb-6">
                     <div class="flex gap-4">
-                        <div class="flex-1">
+                        <div class="flex-1 relative">
                             <input 
                                 type="text" 
                                 id="intelligence-input"
                                 placeholder="輸入客戶名稱或官網網址 (例如：台積電 或 www.tsmc.com)"
-                                class="w-full px-6 py-4 rounded-xl glass-card text-white placeholder-gray-400 border border-white border-opacity-20 focus:border-opacity-40 transition-all bg-transparent"
+                                class="w-full px-6 py-4 pr-24 rounded-xl glass-card text-white placeholder-gray-400 border border-white border-opacity-20 focus:border-opacity-40 transition-all bg-transparent"
                                 onkeypress="if(event.key === 'Enter') performIntelligenceSearch()"
                             />
+                            <!-- 語音和上傳按鈕組 -->
+                            <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                                <!-- 語音錄音按鈕與提示 -->
+                                <div class="flex items-center gap-2">
+                                    <button 
+                                        onclick="toggleVoiceRecognition()"
+                                        id="voice-btn"
+                                        class="voice-btn glass-card rounded-lg p-2.5 hover:bg-opacity-30 transition-all"
+                                        title="語音輸入"
+                                    >
+                                        <i data-lucide="mic" class="w-5 h-5 text-white" id="voice-icon"></i>
+                                    </button>
+                                    <span class="text-xs text-gray-400 hidden md:inline whitespace-nowrap">點擊啟動 AI 語音診斷</span>
+                                </div>
+                                <!-- 檔案上傳按鈕 -->
+                                <button 
+                                    onclick="document.getElementById('file-input').click()"
+                                    class="glass-card rounded-lg p-2.5 hover:bg-opacity-30 transition-all"
+                                    title="上傳檔案（音檔/文字檔）"
+                                >
+                                    <i data-lucide="paperclip" class="w-5 h-5 text-white"></i>
+                                </button>
+                                <input 
+                                    type="file" 
+                                    id="file-input"
+                                    accept="audio/mp3,audio/wav,audio/mpeg,.txt,.pdf"
+                                    class="hidden"
+                                    onchange="handleFileUpload(event)"
+                                />
+                            </div>
                         </div>
                         <button 
                             onclick="performIntelligenceSearch()"
@@ -752,6 +845,36 @@
                             <i data-lucide="search" class="w-5 h-5" id="intelligence-icon"></i>
                             <span id="intelligence-btn-text">AI 深度情蒐</span>
                         </button>
+                    </div>
+                    <!-- 語音錄音提示 -->
+                    <div id="voice-recording-hint" class="hidden mt-4 slide-up">
+                        <div class="glass-card rounded-xl p-4 border-l-4 border-red-500">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                                <p class="text-white text-sm">請描述客戶情況（例如：該客戶最近想解決電費問題...）</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 檔案解析進度條 -->
+                    <div id="audio-processing-progress" class="hidden mt-4 slide-up">
+                        <div class="glass-card rounded-xl p-4">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <i data-lucide="loader-2" class="w-5 h-5 text-blue-400 animate-spin"></i>
+                                <p id="progress-text" class="text-white text-sm font-medium">AI 深度解析檔案中...</p>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+                                <div id="audio-progress-bar" class="bg-gradient-to-r from-blue-500 to-blue-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- NLP 分析提示 -->
+                    <div id="nlp-analysis-hint" class="hidden mt-4 slide-up">
+                        <div class="glass-card rounded-xl p-4 border-l-4 border-blue-500">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="brain" class="w-5 h-5 text-blue-400 animate-pulse"></i>
+                                <p id="nlp-analysis-text" class="text-white text-sm font-medium">正在運用 NLP 引擎分析 ESG 關鍵字：偵測 ISO 14064 與電價調漲風險...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -868,6 +991,30 @@
                 </div>
             </div>
         </div>
+        
+        <!-- 頁尾技術說明 -->
+        <footer class="mt-12 pt-8 border-t border-white border-opacity-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="glass-card rounded-xl p-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500 bg-opacity-20 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="code" class="w-5 h-5 text-blue-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-white font-semibold mb-2 text-sm">技術實作說明</h4>
+                            <p class="text-gray-400 text-xs leading-relaxed">
+                                本系統使用 <span class="text-blue-400 font-medium">Web Speech API</span> 實作即時聽寫功能，
+                                結合 <span class="text-green-400 font-medium">ESG 專業字典</span> 進行精準產品匹配。
+                                透過自然語言處理（NLP）引擎分析客戶需求關鍵字，自動推薦最適合的 ESG@IT 解決方案。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 text-center">
+                    <p class="text-xs text-gray-500">Powered by SYSTEX Corporation | ESG Smart Navigator</p>
+                </div>
+            </div>
+        </footer>
     </main>
     
     <script>
@@ -1256,12 +1403,269 @@
         // 客戶情蒐中心相關函數
         let currentIntelligenceData = null;
         
+        // 語音識別相關變數
+        let recognition = null;
+        let isRecording = false;
+        
+        // 初始化語音識別
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.lang = 'zh-TW';
+                recognition.continuous = true; // 持續錄音直到手動停止
+                recognition.interimResults = true; // 啟用即時結果顯示
+                
+                recognition.onstart = function() {
+                    isRecording = true;
+                    const voiceBtn = document.getElementById('voice-btn');
+                    const voiceIcon = document.getElementById('voice-icon');
+                    const hint = document.getElementById('voice-recording-hint');
+                    
+                    voiceBtn.classList.add('recording');
+                    voiceIcon.setAttribute('data-lucide', 'mic');
+                    lucide.createIcons();
+                    hint.classList.remove('hidden');
+                };
+                
+                recognition.onresult = function(event) {
+                    const input = document.getElementById('intelligence-input');
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+                    
+                    // 處理即時和最終結果
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    // 即時更新搜尋框內容
+                    input.value = finalTranscript + interimTranscript;
+                    
+                    // 如果是最終結果，可以選擇自動停止或繼續錄音
+                    // 這裡選擇繼續錄音，讓用戶手動停止
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('語音識別錯誤:', event.error);
+                    
+                    // 某些錯誤不需要停止錄音
+                    if (event.error === 'no-speech') {
+                        // 沒有語音時不停止，繼續等待
+                        return;
+                    }
+                    
+                    stopVoiceRecognition();
+                    
+                    if (event.error === 'not-allowed') {
+                        alert('請允許瀏覽器使用麥克風權限');
+                    } else if (event.error === 'network') {
+                        alert('網路連線錯誤，請檢查網路連線');
+                    } else if (event.error !== 'no-speech') {
+                        alert('語音識別發生錯誤：' + event.error);
+                    }
+                };
+                
+                recognition.onend = function() {
+                    // 如果正在錄音但意外結束，自動重新啟動（除非用戶手動停止）
+                    if (isRecording) {
+                        try {
+                            recognition.start();
+                        } catch (error) {
+                            // 如果無法重新啟動，停止錄音
+                            stopVoiceRecognition();
+                        }
+                    } else {
+                        stopVoiceRecognition();
+                    }
+                };
+            } else {
+                console.warn('此瀏覽器不支援語音識別功能');
+            }
+        }
+        
+        // 切換語音識別
+        function toggleVoiceRecognition() {
+            if (!recognition) {
+                initSpeechRecognition();
+            }
+            
+            if (!recognition) {
+                alert('您的瀏覽器不支援語音識別功能，請使用 Chrome 或 Edge 瀏覽器');
+                return;
+            }
+            
+            if (isRecording) {
+                // 用戶手動停止：先設為 false，避免自動重啟
+                isRecording = false;
+                try {
+                    recognition.stop();
+                } catch (error) {
+                    console.error('停止語音識別失敗:', error);
+                    stopVoiceRecognition();
+                }
+            } else {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.error('啟動語音識別失敗:', error);
+                    alert('無法啟動語音識別，請檢查麥克風權限');
+                }
+            }
+        }
+        
+        // 停止語音識別
+        function stopVoiceRecognition() {
+            isRecording = false;
+            const voiceBtn = document.getElementById('voice-btn');
+            const voiceIcon = document.getElementById('voice-icon');
+            const hint = document.getElementById('voice-recording-hint');
+            
+            if (voiceBtn) voiceBtn.classList.remove('recording');
+            if (voiceIcon) {
+                voiceIcon.setAttribute('data-lucide', 'mic');
+                lucide.createIcons();
+            }
+            if (hint) hint.classList.add('hidden');
+        }
+        
+        // 處理檔案上傳（支援音檔和文字檔）
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const fileName = file.name.toLowerCase();
+            const fileType = file.type;
+            
+            // 檢查是否為文字檔
+            const isTextFile = fileName.endsWith('.txt') || fileType === 'text/plain';
+            const isPdfFile = fileName.endsWith('.pdf') || fileType === 'application/pdf';
+            
+            // 檢查是否為音檔
+            const isAudioFile = fileType.startsWith('audio/') || 
+                               fileName.match(/\.(mp3|wav|mpeg)$/i);
+            
+            if (!isTextFile && !isPdfFile && !isAudioFile) {
+                alert('請上傳 MP3、WAV 音檔或 TXT、PDF 文字檔');
+                event.target.value = ''; // 重置檔案選擇
+                return;
+            }
+            
+            // 處理文字檔（TXT）
+            if (isTextFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    const input = document.getElementById('intelligence-input');
+                    // 只取前 500 字，避免內容過長
+                    input.value = content.substring(0, 500);
+                };
+                reader.onerror = function() {
+                    alert('讀取檔案失敗，請重試');
+                };
+                reader.readAsText(file, 'UTF-8');
+                return;
+            }
+            
+            // 處理 PDF 檔
+            if (isPdfFile) {
+                // PDF 需要特殊處理，這裡使用 FileReader 讀取為 ArrayBuffer
+                // 注意：純前端無法完美解析 PDF，這裡模擬處理
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // 由於純前端 PDF 解析較複雜，這裡顯示提示並填入預設文字
+                    const input = document.getElementById('intelligence-input');
+                    input.value = 'PDF 檔案已上傳，內容解析中...（建議使用 TXT 格式以獲得最佳體驗）';
+                    
+                    // 顯示進度條模擬解析
+                    showFileProcessingProgress(() => {
+                        // PDF 解析完成後，填入摘要（實際應用中需要後端 API）
+                        input.value = '該客戶需要進行組織碳盤查，並符合 ISO 14064 標準要求';
+                    }, 'AI 深度解析 PDF 檔案中...');
+                };
+                reader.onerror = function() {
+                    alert('讀取 PDF 檔案失敗，請重試');
+                };
+                reader.readAsArrayBuffer(file);
+                return;
+            }
+            
+            // 處理音檔
+            if (isAudioFile) {
+                showFileProcessingProgress(() => {
+                    // 音檔解析完成後，根據檔案名稱或內容生成摘要關鍵字
+                    // 實際應用中需要後端 API 進行語音轉文字
+                    const input = document.getElementById('intelligence-input');
+                    
+                    // 根據檔案名稱或大小生成不同的摘要（模擬）
+                    let summary = '';
+                    if (file.size > 1000000) { // 大於 1MB
+                        summary = '該工廠反應近期冰機電費過高，且需應對供應鏈碳盤查要求，希望透過能源管理系統降低用電成本';
+                    } else {
+                        summary = '該客戶需要進行組織碳盤查，並符合 ISO 14064 標準要求，同時面臨出口歐盟 CBAM 規範挑戰';
+                    }
+                    
+                    input.value = summary;
+                });
+            }
+        }
+        
+        // 顯示檔案處理進度條
+        function showFileProcessingProgress(onComplete, customText) {
+            const progressDiv = document.getElementById('audio-processing-progress');
+            const progressBar = document.getElementById('audio-progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            progressDiv.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            if (progressText) {
+                progressText.textContent = customText || 'AI 深度解析檔案中...';
+            }
+            
+            // 模擬 AI 解析進度
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 12 + 3; // 3-15% 每次
+                if (progress > 95) {
+                    progress = 95;
+                }
+                progressBar.style.width = progress + '%';
+            }, 200);
+            
+            // 模擬解析完成（3-5秒）
+            const duration = 3000 + Math.random() * 2000;
+            setTimeout(() => {
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+                
+                // 解析完成
+                setTimeout(() => {
+                    if (onComplete) {
+                        onComplete();
+                    }
+                    
+                    // 隱藏進度條
+                    progressDiv.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    
+                    // 重新初始化 icons
+                    setTimeout(() => lucide.createIcons(), 100);
+                }, 500);
+            }, duration);
+        }
+        
         function performIntelligenceSearch() {
             const input = document.getElementById('intelligence-input').value.trim();
             const btn = document.getElementById('intelligence-btn');
             const btnText = document.getElementById('intelligence-btn-text');
             const icon = document.getElementById('intelligence-icon');
             const resultsDiv = document.getElementById('intelligence-results');
+            const nlpHint = document.getElementById('nlp-analysis-hint');
+            const nlpText = document.getElementById('nlp-analysis-text');
             
             if (!input) {
                 alert('請輸入客戶名稱或官網網址');
@@ -1274,11 +1678,39 @@
             icon.setAttribute('data-lucide', 'loader-2');
             lucide.createIcons();
             
+            // 顯示 NLP 分析提示
+            if (nlpHint) {
+                nlpHint.classList.remove('hidden');
+                nlpHint.classList.add('slide-up');
+                
+                // 動態更新分析文字（模擬不同階段的分析）
+                const analysisSteps = [
+                    '正在運用 NLP 引擎分析 ESG 關鍵字：偵測 ISO 14064 與電價調漲風險...',
+                    '正在運用 NLP 引擎分析 ESG 關鍵字：識別 CBAM 規範與供應鏈管理需求...',
+                    '正在運用 NLP 引擎分析 ESG 關鍵字：匹配最佳 ESG 產品解決方案...'
+                ];
+                
+                let stepIndex = 0;
+                const stepInterval = setInterval(() => {
+                    if (stepIndex < analysisSteps.length && nlpText) {
+                        nlpText.textContent = analysisSteps[stepIndex];
+                        stepIndex++;
+                    } else {
+                        clearInterval(stepInterval);
+                    }
+                }, 800);
+            }
+            
             // 模擬 AI 分析過程（2-3秒）
             setTimeout(() => {
                 // 分析輸入並生成結果
                 const intelligenceData = analyzeIntelligence(input);
                 currentIntelligenceData = intelligenceData;
+                
+                // 隱藏 NLP 分析提示
+                if (nlpHint) {
+                    nlpHint.classList.add('hidden');
+                }
                 
                 // 顯示結果
                 displayIntelligenceResults(intelligenceData);
@@ -1303,7 +1735,178 @@
         function analyzeIntelligence(input) {
             const lowerInput = input.toLowerCase();
             
-            // 診斷邏輯 A：用電大戶/電價調漲
+            // 關鍵字優先判斷邏輯
+            const hasEnergyKeywords = lowerInput.includes('電') || 
+                                     lowerInput.includes('漲') || 
+                                     lowerInput.includes('能源') || 
+                                     lowerInput.includes('能管') ||
+                                     lowerInput.includes('電費') ||
+                                     lowerInput.includes('用電') ||
+                                     lowerInput.includes('節能') ||
+                                     lowerInput.includes('冰機');
+            
+            const hasCarbonKeywords = lowerInput.includes('碳') || 
+                                     lowerInput.includes('出口') || 
+                                     lowerInput.includes('歐盟') || 
+                                     lowerInput.includes('盤查') ||
+                                     lowerInput.includes('cbam') ||
+                                     lowerInput.includes('iso 14064') ||
+                                     lowerInput.includes('組織碳') ||
+                                     lowerInput.includes('碳管理');
+            
+            const hasSupplyChainKeywords = lowerInput.includes('供應商') || 
+                                          lowerInput.includes('範疇三') || 
+                                          lowerInput.includes('足跡') ||
+                                          lowerInput.includes('供應鏈') ||
+                                          lowerInput.includes('scope 3') ||
+                                          lowerInput.includes('產品碳');
+            
+            // 優先級 1：能源管理關鍵字 -> EnVision360
+            if (hasEnergyKeywords) {
+                return {
+                    company: input.length > 50 ? '客戶' : input.substring(0, 30),
+                    esgDynamic: [
+                        {
+                            type: 'warning',
+                            title: '電價調漲壓力',
+                            content: '工業電價調漲造成重大成本壓力，急需能源管理解決方案。',
+                            time: '2024年12月'
+                        },
+                        {
+                            type: 'info',
+                            title: '能源管理需求',
+                            content: '需要透過 AI 節能與儲能系統降低用電成本。',
+                            time: '2024年11月'
+                        }
+                    ],
+                    painPoints: [
+                        {
+                            title: '電價成本壓力',
+                            content: '工業電價大幅調漲，急需透過 AI 節能與儲能系統降低用電成本。',
+                            icon: 'trending-up'
+                        },
+                        {
+                            title: '能源管理法規',
+                            content: '用電大戶條款要求年用電量超過 5,000 瓩的企業，需設置再生能源或節能設備。',
+                            icon: 'zap'
+                        }
+                    ],
+                    recommendations: [
+                        {
+                            product: 'EnVision360',
+                            productName: 'EnVision360 能源管理平台',
+                            reason: '偵測到能源管理關鍵字',
+                            highlight: 'AI 冰機節能優化、儲能削峰填谷，可解決電價漲幅壓力',
+                            icon: 'battery-charging',
+                            color: 'green'
+                        }
+                    ]
+                };
+            }
+            
+            // 優先級 2：供應鏈關鍵字 -> FPCarbon 與 供應鏈管理
+            if (hasSupplyChainKeywords) {
+                return {
+                    company: input.length > 50 ? '客戶' : input.substring(0, 30),
+                    esgDynamic: [
+                        {
+                            type: 'warning',
+                            title: '供應鏈碳排管理',
+                            content: '國際品牌客戶要求供應鏈碳排數據透明化，需建立完整的供應鏈管理系統。',
+                            time: '2024年12月'
+                        },
+                        {
+                            type: 'info',
+                            title: '範疇三管理需求',
+                            content: '需要管理供應鏈上下游碳排數據，提升資訊透明度。',
+                            time: '2024年11月'
+                        }
+                    ],
+                    painPoints: [
+                        {
+                            title: '供應鏈碳排管理',
+                            content: '國際客戶要求範疇三（Scope 3）碳排數據，需建立供應鏈管理機制。',
+                            icon: 'network'
+                        },
+                        {
+                            title: '產品碳足跡',
+                            content: '需要進行產品碳足跡分析，符合國際標準要求。',
+                            icon: 'layers'
+                        }
+                    ],
+                    recommendations: [
+                        {
+                            product: 'EmissiCraft',
+                            productName: 'EmissiCraft 碳策師',
+                            reason: '偵測到產品碳足跡需求',
+                            highlight: 'ISO 14067 標準，LCA 生命週期拆解分析，應對 CBAM 模組',
+                            icon: 'layers',
+                            color: 'purple'
+                        },
+                        {
+                            product: 'SupplyChain',
+                            productName: '供應鏈管理系統',
+                            reason: '偵測到供應鏈碳排管理需求',
+                            highlight: '範疇三管理，提升供應鏈資訊透明度',
+                            icon: 'network',
+                            color: 'teal'
+                        }
+                    ]
+                };
+            }
+            
+            // 優先級 3：碳盤查關鍵字 -> Carbon EnVision
+            if (hasCarbonKeywords) {
+                return {
+                    company: input.length > 50 ? '客戶' : input.substring(0, 30),
+                    esgDynamic: [
+                        {
+                            type: 'warning',
+                            title: 'CBAM 規範要求',
+                            content: '出口至歐盟市場需符合 CBAM（碳邊境調整機制）規範，需提供產品碳足跡報告。',
+                            time: '2024年12月'
+                        },
+                        {
+                            type: 'info',
+                            title: '碳盤查需求',
+                            content: '需要進行組織碳盤查，並符合 ISO 14064 標準要求。',
+                            time: '2024年11月'
+                        }
+                    ],
+                    painPoints: [
+                        {
+                            title: 'CBAM 法規',
+                            content: '歐盟 CBAM 要求進口產品需申報碳排，不符合規範將面臨碳關稅。',
+                            icon: 'globe'
+                        },
+                        {
+                            title: '組織碳盤查',
+                            content: '需要進行 ISO 14064 組織碳盤查，產出符合標準的報告書。',
+                            icon: 'file-check'
+                        }
+                    ],
+                    recommendations: [
+                        {
+                            product: 'CarbonEnVision',
+                            productName: 'Carbon EnVision 雲端碳管理系統',
+                            reason: '偵測到碳盤查關鍵字',
+                            highlight: 'ISO 14064 標準符合，一站式自動產出盤查報告書',
+                            icon: 'cloud',
+                            color: 'blue'
+                        },
+                        {
+                            product: 'EmissiCraft',
+                            productName: 'EmissiCraft 碳策師',
+                            reason: '偵測到出口歐洲需求',
+                            highlight: '符合 CBAM 規範，產出 ISO 14067 產品碳足跡報告',
+                            icon: 'layers',
+                            color: 'purple'
+                        }
+                    ]
+                };
+            }
+            
+            // 原有診斷邏輯 A：用電大戶/電價調漲（作為備用）
             if (lowerInput.includes('台積電') || lowerInput.includes('tsmc') || 
                 lowerInput.includes('製造業') || lowerInput.includes('半導體') ||
                 lowerInput.includes('電子') || lowerInput.includes('科技業')) {
@@ -1839,6 +2442,8 @@
         // 初始化：顯示客戶情蒐分析視圖
         document.addEventListener('DOMContentLoaded', () => {
             switchView('intelligence');
+            // 初始化語音識別
+            initSpeechRecognition();
         });
     </script>
 </body>
